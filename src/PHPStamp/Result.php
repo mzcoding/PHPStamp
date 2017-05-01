@@ -45,4 +45,30 @@ class Result
             exit;
         }
     }
-} 
+    public function link(){
+
+       $fileName = $this->document->getDocumentName();
+
+
+       $tempArchive = tempnam(sys_get_temp_dir(), 'doc');
+
+       if (copy($this->document->getDocumentPath(), $tempArchive) === true) {
+           $zip = new \ZipArchive();
+           $zip->open($tempArchive);
+           $zip->addFromString($this->document->getContentPath(), $this->output->saveXML());
+           $zip->close();
+
+           header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+      
+
+           // Send file - required ob_clean() & exit;
+           ob_clean();
+           $file = file_get_contents($tempArchive);
+           unlink($tempArchive);
+
+           return $file;
+
+
+       }
+   }
+}
